@@ -83,7 +83,7 @@ services:
       - dockflare-internal
 
   dockflare-mail-manager:
-    image: alplat/dockflare-mail-manager:stable
+    image: ghcr.io/ondarianenterprises/dockflare-mail-manager:stable
     container_name: dockflare-mail-manager
     restart: unless-stopped
     profiles: ["email"]
