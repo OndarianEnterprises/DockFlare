@@ -34,8 +34,10 @@ const compose = () => {
     <SplitterGroup
       id="mail-layout"
       direction="horizontal"
-      class="h-screen w-screen items-stretch"
+      class="h-screen w-screen items-stretch bg-[#081018] relative"
     >
+      <!-- Dot grid backdrop -->
+      <div class="dot-grid-static" aria-hidden="true" />
       <SplitterPanel
         id="sidebar"
         :default-size="20"
@@ -44,16 +46,16 @@ const compose = () => {
         :min-size="15"
         :max-size="22"
         :class="cn(
-          'flex flex-col',
+          'flex flex-col border-r border-[rgba(61,139,255,0.18)] bg-[#081018] relative z-10',
           store.isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out',
         )"
         @collapse="onCollapse"
         @expand="onExpand"
       >
-        <!-- ── Single header row (same height as middle + right panel headers) ── -->
+        <!-- ── Single header row ── -->
         <div
           :class="cn(
-            'h-[52px] flex items-center gap-1 px-2 flex-shrink-0',
+            'h-[52px] flex items-center gap-1 px-2 flex-shrink-0 border-b border-[rgba(61,139,255,0.15)]',
             store.isCollapsed ? 'flex-col justify-center py-1' : 'flex-row',
           )"
         >
@@ -195,7 +197,7 @@ const compose = () => {
 
       <SplitterResizeHandle
         id="sidebar-handle"
-        class="self-stretch w-[3px] bg-transparent hover:bg-border active:bg-primary/40 transition-colors"
+        class="self-stretch w-[3px] bg-transparent hover:bg-[rgba(61,139,255,0.35)] active:bg-[rgba(61,139,255,0.6)] transition-colors cursor-col-resize z-10"
       />
 
       <template v-if="store.viewMode === 'split'">
@@ -203,21 +205,21 @@ const compose = () => {
           id="mail-list"
           :default-size="35"
           :min-size="25"
-          class="flex flex-col overflow-hidden"
+          class="flex flex-col overflow-hidden bg-[#081018] border-r border-[rgba(61,139,255,0.1)] relative z-10"
         >
           <MessageList />
         </SplitterPanel>
 
         <SplitterResizeHandle
           id="display-handle"
-          class="self-stretch w-[3px] bg-transparent hover:bg-border active:bg-primary/40 transition-colors"
+          class="self-stretch w-[3px] bg-transparent hover:bg-[rgba(61,139,255,0.35)] active:bg-[rgba(61,139,255,0.6)] transition-colors cursor-col-resize z-10"
         />
 
         <SplitterPanel
           id="mail-display"
           :default-size="45"
           :min-size="30"
-          class="flex flex-col overflow-hidden"
+          class="flex flex-col overflow-hidden bg-[#081018] relative z-10"
         >
           <ComposeDialog v-if="store.isComposeOpen && store.isComposeFullView" :panel-mode="true" />
           <MessageDisplay v-else :message="store.currentMessage ?? undefined" />
@@ -229,7 +231,7 @@ const compose = () => {
           id="mail-content"
           :default-size="80"
           :min-size="30"
-          class="flex flex-col overflow-hidden"
+          class="flex flex-col overflow-hidden bg-[#081018] relative z-10"
         >
           <template v-if="store.isComposeOpen && store.isComposeFullView">
             <ComposeDialog :panel-mode="true" />

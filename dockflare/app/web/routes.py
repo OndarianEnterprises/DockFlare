@@ -241,9 +241,6 @@ def add_security_headers_bp(response):
     if is_https:
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With, Authorization'
     return response
 
 @bp.context_processor
@@ -1152,8 +1149,6 @@ def stream_logs_route():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     response.headers['X-Accel-Buffering'] = 'no'
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET'
     return response
 
 @bp.route('/stream-state-updates')

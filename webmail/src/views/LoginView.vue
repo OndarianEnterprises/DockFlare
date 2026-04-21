@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import { authApi } from '../api/auth'
-import Button from '../components/ui/Button.vue'
+import TronPanel from '../components/TronPanel.vue'
 
 const route = useRoute()
 const { login } = useAuth()
@@ -55,43 +55,93 @@ const redirectToMaster = async () => {
 </script>
 
 <template>
-  <div class="flex h-screen w-screen items-center justify-center bg-background">
-    <div class="w-full max-w-sm space-y-6 rounded-lg border p-8 shadow-sm">
-      <div class="flex flex-col space-y-2 text-center">
-        <h1 class="text-2xl font-semibold tracking-tight">Login to Webmail</h1>
-        <p class="text-sm text-muted-foreground">Sign in with your email and password</p>
+  <div class="relative flex h-screen w-screen items-center justify-center bg-[#081018] overflow-hidden">
+
+    <!-- Dot grid backdrop -->
+    <div class="dot-grid-static" aria-hidden="true" />
+
+    <!-- Ambient corner glows -->
+    <div class="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full"
+         style="background: radial-gradient(circle, rgba(61,139,255,0.08) 0%, transparent 70%);" />
+    <div class="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full"
+         style="background: radial-gradient(circle, rgba(61,139,255,0.06) 0%, transparent 70%);" />
+
+    <!-- Login panel -->
+    <TronPanel :delay="0.2" :scanlines="true" inner-class="p-8 w-full max-w-sm">
+      <!-- Header -->
+      <div class="boot-in boot-delay-4 mb-8 space-y-1">
+        <p class="text-[10px] tracking-[0.25em] text-[#3d8bff] uppercase opacity-70">
+          DockFlare // Webmail
+        </p>
+        <h1 class="text-xl font-semibold tracking-widest text-[#e2e8f0] uppercase">
+          Authenticate
+        </h1>
+        <p class="text-xs text-[#94a3b8]">
+          Enter credentials to access terminal
+        </p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-3">
-        <input
-          v-model="email"
-          type="email"
-          placeholder="you@example.com"
-          required
-          class="input input-bordered w-full"
-        />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-          required
-          class="input input-bordered w-full"
-        />
-        <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
-        <Button type="submit" class="w-full" :disabled="loading">
-          {{ loading ? 'Signing in…' : 'Sign in' }}
-        </Button>
+      <!-- Form -->
+      <form @submit.prevent="handleLogin" class="boot-in boot-delay-4 space-y-3">
+        <div class="space-y-1">
+          <label class="text-[10px] tracking-widest text-[#3d8bff] uppercase opacity-80">
+            Email Address
+          </label>
+          <input
+            v-model="email"
+            type="email"
+            placeholder="user@domain.com"
+            required
+            class="w-full bg-[#081018] border border-[rgba(61,139,255,0.25)] text-[#e2e8f0] placeholder-[#94a3b8]/40 text-sm px-3 py-2 outline-none transition-all focus:border-[#3d8bff] focus:shadow-[0_0_8px_rgba(61,139,255,0.2)]"
+            style="border-radius: 0.125rem; font-family: 'JetBrains Mono', monospace;"
+          />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[10px] tracking-widest text-[#3d8bff] uppercase opacity-80">
+            Password
+          </label>
+          <input
+            v-model="password"
+            type="password"
+            placeholder="••••••••"
+            required
+            class="w-full bg-[#081018] border border-[rgba(61,139,255,0.25)] text-[#e2e8f0] placeholder-[#94a3b8]/40 text-sm px-3 py-2 outline-none transition-all focus:border-[#3d8bff] focus:shadow-[0_0_8px_rgba(61,139,255,0.2)]"
+            style="border-radius: 0.125rem; font-family: 'JetBrains Mono', monospace;"
+          />
+        </div>
+
+        <p v-if="error" class="chip chip-error text-xs">
+          {{ error }}
+        </p>
+
+        <button
+          type="submit"
+          :disabled="loading"
+          class="mt-2 w-full py-2.5 text-sm font-semibold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+          style="background-color: #3d8bff; color: #081018; border-radius: 0.125rem; font-family: 'JetBrains Mono', monospace;"
+          :style="loading ? {} : {}"
+        >
+          {{ loading ? '[ AUTHENTICATING... ]' : '[ SIGN IN ]' }}
+        </button>
       </form>
 
-      <div class="flex items-center gap-2">
-        <div class="flex-1 border-t" />
-        <span class="text-xs text-muted-foreground">or</span>
-        <div class="flex-1 border-t" />
+      <!-- Divider -->
+      <div class="boot-in boot-delay-5 my-5 flex items-center gap-3">
+        <div class="h-px flex-1" style="background: rgba(61,139,255,0.15);" />
+        <span class="text-[10px] tracking-widest text-[#94a3b8] uppercase opacity-60">or</span>
+        <div class="h-px flex-1" style="background: rgba(61,139,255,0.15);" />
       </div>
 
-      <Button variant="outline" class="w-full" @click="redirectToMaster">
-        Admin SSO
-      </Button>
-    </div>
+      <!-- SSO Button -->
+      <button
+        class="boot-in boot-delay-5 w-full py-2.5 text-sm font-semibold uppercase tracking-widest border transition-all active:scale-95"
+        style="border-color: rgba(61,139,255,0.25); color: #3d8bff; background: transparent; border-radius: 0.125rem; font-family: 'JetBrains Mono', monospace;"
+        @mouseover="($event.target as HTMLElement).style.borderColor = 'rgba(61,139,255,0.5)'"
+        @mouseleave="($event.target as HTMLElement).style.borderColor = 'rgba(61,139,255,0.25)'"
+        @click="redirectToMaster"
+      >
+        [ Admin SSO ]
+      </button>
+    </TronPanel>
   </div>
 </template>

@@ -142,7 +142,7 @@ def create_app():
     app_instance.config['APP_VERSION'] = config.APP_VERSION
     app_instance.config['SESSION_COOKIE_HTTPONLY'] = True
     app_instance.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app_instance.config['PERMANENT_SESSION_LIFETIME'] = 86400
+    app_instance.config['PERMANENT_SESSION_LIFETIME'] = 43200  # 12 hours
 
     # Initialize CSRF Protection
     csrf = CSRFProtect(app_instance)
