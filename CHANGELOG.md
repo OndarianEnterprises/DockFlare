@@ -788,3 +788,5 @@ This is a follow-up release to address several minor bugs found after the major 
 
 ### Added
 - **Initial Release:** Core functionality of DockFlare, providing dynamic Cloudflare Tunnel configuration based on Docker container labels.
+
+Bump
