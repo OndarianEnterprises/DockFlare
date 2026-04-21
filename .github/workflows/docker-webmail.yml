@@ -2,6 +2,7 @@
 name: Docker Image - Webmail
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "stable"

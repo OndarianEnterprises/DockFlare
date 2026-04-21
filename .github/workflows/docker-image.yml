@@ -2,6 +2,7 @@
 name: Docker Image - DockFlare
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "stable"
