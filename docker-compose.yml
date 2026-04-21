@@ -1,12 +1,13 @@
 version: '3.8'
 
 services:
+
   docker-socket-proxy:
     image: tecnativa/docker-socket-proxy:v0.4.1
     container_name: docker-socket-proxy
     restart: unless-stopped
     logging:
-      driver: "none"  # Minimize the logs, remove for verbose
+      driver: "none"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - CONTAINERS=1
@@ -32,37 +33,32 @@ services:
     restart: "no"
 
   dockflare:
-    #build: ./dockflare
-    image: alplat/dockflare:stable
+    image: ghcr.io/ondarianenterprises/dockflare:stable
     container_name: dockflare
     restart: unless-stopped
+    env_file: .env
     ports:
       - "5000:5000"
-    labels: # -- Cloudflare Tunnel Configuration (via DockFlare) OPTIONAL --
-      # Main DockFlare with access policy
+    labels:
       - dockflare.enable=true
-      - dockflare.hostname=dockflare.TLD  # replace with your domain
+      - dockflare.hostname=${DOCKFLARE_HOSTNAME}
       - dockflare.service=http://dockflare:5000
-      #- dockflare.access.group=YOUR-ACCESS-GROUP-ID  # your custom access policy
-      # -- OAuth Callback Path (Bypass Access Policy) OPTIONAL --
-      # Required if using OAuth authentication with access policies on main interface
-      #- dockflare.0.hostname=dockflare.example.tld
+      # Uncomment to protect the UI with a Cloudflare Access group:
+      #- dockflare.access.group=YOUR-ACCESS-GROUP-ID
+
+      # OAuth callback bypass (required if DockFlare is behind an Access policy
+      # and you use OAuth — e.g. Google/GitHub — to sign in to the UI):
+      #- dockflare.0.hostname=${DOCKFLARE_HOSTNAME}
       #- dockflare.0.path=/auth/google/callback
       #- dockflare.0.service=http://dockflare:5000
       #- dockflare.0.access.group=public-default-bypass
 
-      # Add additional callback paths for other OAuth providers as needed
-      # - dockflare.1.hostname=dockflare.example.com
-      # - dockflare.1.path=/auth/github/callback
-      # - dockflare.1.service=http://dockflare:5000
-      # - dockflare.1.access.group=public-default-bypass
+      #- dockflare.1.hostname=${DOCKFLARE_HOSTNAME}
+      #- dockflare.1.path=/auth/github/callback
+      #- dockflare.1.service=http://dockflare:5000
+      #- dockflare.1.access.group=public-default-bypass
     volumes:
       - dockflare_data:/app/data
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-      - REDIS_DB_INDEX=0  # Optional: specify Redis database index (0-15) for isolation from other containers
-      - DOCKER_HOST=tcp://docker-socket-proxy:2375
-      #- LOG_LEVEL=DEBUG # Uncomment for more verbose logging/debugging
     depends_on:
       docker-socket-proxy:
         condition: service_started
@@ -80,20 +76,19 @@ services:
     restart: unless-stopped
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     logging:
-      driver: "none"  # less logs, remove for verbose / more logs
+      driver: "none"
     volumes:
       - dockflare_redis:/data
     networks:
       - dockflare-internal
 
   dockflare-mail-manager:
-    #build: ./mail-manager
     image: alplat/dockflare-mail-manager:stable
     container_name: dockflare-mail-manager
     restart: unless-stopped
     profiles: ["email"]
     environment:
-      - DOCKFLARE_MASTER_URL=http://dockflare:5000
+      - DOCKFLARE_MASTER_URL=${DOCKFLARE_MASTER_INTERNAL_URL:-http://dockflare:5000}
       - MAIL_DATA_PATH=/data
     volumes:
       - mail_data:/data
@@ -105,16 +100,15 @@ services:
       - dockflare-internal
 
   dockflare-webmail:
-    #build: ./webmail
-    image: alplat/dockflare-webmail:stable
+    image: ghcr.io/ondarianenterprises/dockflare-webmail:stable
     container_name: dockflare-webmail
     restart: unless-stopped
     profiles: ["email"]
     environment:
-      - DOCKFLARE_MASTER_URL=https://dockflare.TLD  # replace with your domain
+      - DOCKFLARE_MASTER_URL=${DOCKFLARE_MASTER_PUBLIC_URL}
     labels:
       - dockflare.enable=true
-      - dockflare.hostname=mail.dockflare.TLD  # replace with your domain
+      - dockflare.hostname=${DOCKFLARE_MAIL_HOSTNAME}
       - dockflare.service=http://dockflare-webmail:80
     depends_on:
       dockflare-mail-manager:
